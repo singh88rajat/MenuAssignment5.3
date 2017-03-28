@@ -1,9 +1,11 @@
 package com.example.mypc.menuassignment53;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -14,8 +16,10 @@ import com.example.mypc.menuassignment53.CustomHandler.CustomHandler;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class MainActivity extends Activity {
     ListView list;
+    private static final int MENU_ID_01 = 100;
+    private static final int MENU_ID_02 = 101;
     String name[]=new String[]{
             "Name 1","Name2", "Name 3", "Name 4", "Name 5", "Name 6" } ;
     String phone[] = new String []{"9988998871","9988998872","9988998873","9988998874","9988998875","9988998876"};
@@ -36,24 +40,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         CustomAdapterView adapter= new CustomAdapterView(this, model);
         list.setAdapter(adapter);
-        list.setOnItemClickListener(this);
 
+        registerForContextMenu(list);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
+    public void onCreateContextMenu(android.view.ContextMenu menu, View v, android.view.ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Choose Action");
+        menu.add(0, MENU_ID_01, 2, "Call");//groupId, itemId, order, title
+        menu.add(0, MENU_ID_02, 1, "SMS");
+    }
 
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "Hello From Mukesh");
-        sendIntent.setType("text/plain");
-        startActivity(sendIntent);
-        try {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone[0]));
+    @Override
+    public boolean onContextItemSelected(MenuItem item){
+        if(item.getItemId()==MENU_ID_01 && item.getGroupId()==0){
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:0123456789"));
             startActivity(intent);
-        } catch (Exception e) {
-
+           /* Toast.makeText(getApplicationContext(),"Clicked on " +item.getGroupId()+"..."+item.getItemId(),Toast.LENGTH_LONG).show();*/
         }
-
+        else if(item.getItemId()==MENU_ID_02 && item.getGroupId()==0){
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_APP_MESSAGING);
+            startActivity(intent);
+          /*  Toast.makeText(getApplicationContext(),"Clicked on " +item.getGroupId()+"..."+item.getItemId(),Toast.LENGTH_LONG).show();*/
+        }
+        else{
+            return false;
+        }
+        return true;
     }
 }
